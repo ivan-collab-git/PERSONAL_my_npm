@@ -1,0 +1,19 @@
+{
+  "name": "@ivan-/concurrent-webcrack",
+  "version": "1.0.5",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "dependencies": {
+    "@babel/generator": "^7.26.2",
+    "p-queue": "^8.0.1",
+    "prettier": "^3.3.3",
+    "webcrack": "^2.14.1"
+  },
+  "license": "ISC",
+  "description": ""
+}

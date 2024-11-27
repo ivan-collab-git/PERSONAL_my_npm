@@ -7,7 +7,7 @@ import extractDateFromBucketName from "./extractDateFromBucketName.js"
 import { retryFunctionAsync } from "./retryFunction.js"
 import { addMetadataCrossReferenceToSarif, addOccurancesCheck } from "./addMetadataCrossReferenceToSarif.js"
 import { parseBooleanValueForYAML, parseRegexListsForYAML } from "./primitiveParserForYaml.js"
-import filterSarif from "./filterSarif.js"
+import { mergeSarifs, filterSarif } from "./filterSarif.js"
 
 export { 
     getMetadataDirectoryFromRepoByReverseIdxDateNamed,
@@ -22,5 +22,6 @@ export {
     addOccurancesCheck,
     parseBooleanValueForYAML,
     parseRegexListsForYAML,
+    mergeSarifs,
     filterSarif
 }

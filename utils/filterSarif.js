@@ -2,19 +2,18 @@ import fs from "fs"
 import path from 'path'
 import leven from 'leven'
 
-export default function filterSarif( 
-    fileToFilter,
+
+function filterSarif( 
+    parsedSarif,
     levenThresholdForRepeatedIssues,
+    vulnerabilityWhitelistFilter,
     vulnerabilityBlacklistFilter,
     alreadyCheckedUniqueId,
     interestingUniqueIdsOnQueueNotFullyChecked,
-    vulnerabilityWhitelistFilter,
     pathFilterRegex
 ){
 
-    let sarifFile = JSON.parse(fs.readFileSync( fileToFilter, "utf-8" ))
-
-    let issues = sarifFile.runs[0].results.map( i => i.properties )
+    let issues = parsedSarif.runs[0].results.map( i => i.properties )
     console.log( "Initial number after exact hash filter: ", issues.length )
 
     // Filter by levenstein distance
@@ -81,14 +80,37 @@ export default function filterSarif(
     console.log( "Finall count after applying filters:", issues.length )
 
     let issuesGuids = issues.map( i => i.id )
-    sarifFile.runs[0].results = sarifFile.runs[0].results.filter( i => issuesGuids.includes( i.properties.id )  )
+    parsedSarif.runs[0].results = parsedSarif.runs[0].results.filter( i => issuesGuids.includes( i.properties.id )  )
 
     // This will add the list of snippets that are considered matches in the levenstein test, so you can see them in the sarif file just to verify 
-    sarifFile.runs[0].results.forEach( i => {
+    parsedSarif.runs[0].results.forEach( i => {
         i.properties.verifyRepeatedSnippet = issues.find( j => i.properties.id === j.id )?.verifyRepeatedSnippet
         i.properties.verifyRepeatedSnippet = i.properties.verifyRepeatedSnippet.map( k =>  k.replace(/\n/g, "\\n") )
     })
 
-    if(outputFilteredFile) fs.writeFileSync( path.join(outputFilteredFile, "filteredResults.sarif"), JSON.stringify( sarifFile, null, 4)  )
-    return sarifFile
+    return parsedSarif
 }
+
+
+function mergeSarifs( parsedSarifsArray ){
+    
+    // Create a new SARIF object
+    let mergedSarif = {
+      $schema: "https://json.schemastore.org/sarif-2.1.0",
+      version: "2.1.0",
+      runs: []
+    };
+    
+    // Merge the `runs` arrays
+    parsedSarifsArray.forEach(sarif => {
+      if (sarif.runs) {
+        mergedSarif.runs = mergedSarif.runs.concat(sarif.runs);
+      }
+    });
+    
+    return mergedSarif
+    
+}
+
+
+export { mergeSarifs, filterSarif }

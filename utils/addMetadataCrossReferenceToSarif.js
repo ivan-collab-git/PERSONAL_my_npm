@@ -74,7 +74,7 @@ function addMetadataCrossReferenceToSarif( result, issues, savedListing, mapping
     result.message.text += `; ${result.properties.id}; ${result.properties.isNew ? "new finding; @@@" : "" }`
 }
 
-// Mark as repeated occurances and add number of repeated occurances
+// Mark as repeated occurances and add numbergeneratePropertiesForSarif of repeated occurances
 function addOccurancesCheck( properties ){
     let uniqueOcurrancesHashes = Array.from(new Set(properties.map( i => i.uniqueId )))
     let occuranceCount = uniqueOcurrancesHashes.map( i => {

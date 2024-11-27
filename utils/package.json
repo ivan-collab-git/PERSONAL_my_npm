@@ -1,7 +1,7 @@
 {
   "name": "@ivan-/utils",
   "type": "module",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Some tools",
   "main": "index.js",
   "scripts": {

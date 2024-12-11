@@ -13,6 +13,18 @@ function filterSarif(
     pathFilterRegex
 ){
 
+    // any files have i.guid (also copied at i.properties.id),  which is a guid for the reported vuln itself, codeql doesn't have this, this 
+    // id is necesssary to filter the repeated vulnerabilities, so i here i add a guid if it doesn't exists already
+    parsedSarif.runs[0].results.forEach( (_,idx) => 
+        !parsedSarif.runs[0].results[idx].id &&
+        (parsedSarif.runs[0].results[idx].properties.id = `_temp_guid_${idx}_`) 
+    )
+    // snyk files have the i.properties.primaryFilePath, but not codeql, this just adds it from !i.locations[0].physicalLocation.artifactLocation.uri when
+    // it doesn't exist
+    parsedSarif.runs[0].results.forEach( (_,idx) => 
+        !parsedSarif.runs[0].results[idx].primaryFilePath && 
+        (parsedSarif.runs[0].results[idx].properties.primaryFilePath = parsedSarif.runs[0].results[idx].locations[0].physicalLocation.artifactLocation.uri) 
+    )
     let issues = parsedSarif.runs[0].results.map( i => i.properties )
     console.log( "Initial number after exact hash filter: ", issues.length )
 
@@ -63,7 +75,7 @@ function filterSarif(
             
             !interestingUniqueIdsOnQueueNotFullyChecked.includes( i.uniqueId ) &&
             (vulnerabilityWhitelistFilter.length ? vulnerabilityWhitelistFilter.includes(  i.name ) : true ) &&
-            pathFilterRegex.test(i.primaryFilePath)
+            !pathFilterRegex.find( j => new RegExp(j).test( i.primaryFilePath ) )
         )
 
         if (!filter) filteredLevensteinIdxsIds.push( i.levensteinIdx )

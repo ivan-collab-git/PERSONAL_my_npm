@@ -1,6 +1,6 @@
 {
   "name": "@ivan-/concurrent-s3",
-  "version": "1.0.3",
+  "version": "1.0.8",
   "type": "module",
   "description": "Concurrent and recursive s3 sdk operations",
   "main": "index.js",

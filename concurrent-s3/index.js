@@ -23,24 +23,26 @@ async function downloadDirectoryConcurrently( bucketName, prefix, s3, localDirec
     
     async function downloadFile( s3, localFilePath, objectKey, retries = 4 ){
         console.log(`Downloading ${objectKey} to ${localFilePath}`);
-
-        let response = await s3.send(new GetObjectCommand({
-            Bucket: bucketName,
-            Key: objectKey,
-        }));
-
-        let fileStream = fs.createWriteStream(localFilePath);
         try{
+
+            let response = await s3.send(new GetObjectCommand({
+                Bucket: bucketName,
+                Key: objectKey,
+            }));
+
+            let fileStream = fs.createWriteStream(localFilePath);
+
             await new Promise((resolve, reject) => {
                 response.Body.pipe(fileStream);
                 fileStream.on('finish', resolve);
                 fileStream.on('error', reject);
             });
         }
-        catch{
-            console.error("Error downloading file:", localFilePath)
+        catch(error){
+            console.error("Error downloading file:", localFilePath, error )
             if( retries ){ 
                 console.log("Retrying download: ", localFilePath)
+                await new Promise( resolve => setTimeout( resolve, 5000 ))
                 await downloadFile( s3, localFilePath, objectKey, retries - 1 )
             }
             else{
@@ -147,10 +149,11 @@ async function uploadDirectoryConcurrently( bucketName, prefix, s3, localDirecto
                 })
             );
         }
-        catch{
-            console.error("Error uploading file:", localFilePath)
+        catch(error){
+            console.error("Error uploading file!!!:", {localFilePath, error})
             if( retries ){ 
                 console.log("Retrying upload: ", localFilePath)
+                await new Promise( resolve => setTimeout( resolve, 5000 ))
                 await uploadFile( s3, localFilePath, key, retries - 1 )
             }
             else{
